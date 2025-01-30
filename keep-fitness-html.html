@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keep 运动记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            font-weight: normal;  /* 根据图片调整字重 */
+        }
+
+        .header .time {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .distance-section {
+            margin-bottom: 24px;
+        }
+
+        .distance-section h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .distance {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .distance span {
+            font-size: 24px;
+        }
+
+        .sport-banner {
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .sport-banner img {
+            width: 100%;
+            height: auto;
+            display: block;  /* 移除图片底部的空白间隙 */
+        }
+
+        .sport-text {
+            color: #333;
+            font-size: 72px;
+            font-weight: bold;
+            opacity: 0.2;
+        }
+
+        .stats {
+            margin-bottom: 24px;
+        }
+
+        .stats h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-item p:first-child {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-item p:last-child {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .segments h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .segment-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .segment-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .segment-row .steps {
+            color: #35be90;
+        }
+        .segment-row .heartRate{
+            color: #35be90;
+        }
+
+        .save-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #24c68a;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+
+        .save-button:hover {
+            background-color: #45a049;
+        }
+
+
+        .segment-row div:nth-child(5) {  /* 直接选择第5列（心率列）*/
+            color: #FF0000;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="user-info">
+                <img src="avatar.jpg" class="avatar">  <!-- 添加头像，替换 avatar.jpg 为你的头像图片路径 -->
+                <div class="user-details">
+                    <h1>你的名字</h1>
+                    <div class="time">2025/1/30 9:35 - 10:10</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="distance-section">
+            <h2>户外行走</h2>
+            <div class="distance">3.03<span>公里</span></div>
+            <div class="sport-banner">
+                <img src="background.jpg" width="500px">
+                
+                
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>运动数据</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <p>运动时长</p>
+                    <p>00:34:28</p>
+                </div>
+                <div class="stat-item">
+                    <p>总步数</p>
+                    <p>3337步</p>
+                </div>
+                <div class="stat-item">
+                    <p>运动消耗</p>
+                    <p>266千卡</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="segments">
+            <h2>分段详情</h2>
+            <div class="segment-grid">
+                <div>#</div>
+                <div>公里</div>
+                <div>用时</div>
+                <div>步数</div>
+                <div>心率</div>
+            </div>
+            <div id="segmentsList"></div>
+        </div>
+
+        <button class="save-button" onclick="saveRecord()">保存记录</button>
+    </div>
+
+    <script>
+        // 运动数据
+        const segments = [
+            { id: 1, distance: "1.00", duration: "6:06", steps: "1142", heartRate: "—" },
+            { id: 2, distance: "0.51", duration: "10:26", steps: "595", heartRate: "—" },
+            { id: 3, distance: "1.52", duration: "18:20", steps: "1600", heartRate: "—" }
+        ];
+
+        // 渲染分段数据
+        function renderSegments() {
+            const segmentsList = document.getElementById('segmentsList');
+            segmentsList.innerHTML = segments.map(segment => `
+                <div class="segment-row">
+                    <div>${segment.id}</div>
+                    <div>${segment.distance}</div>
+                    <div>${segment.duration}</div>
+                    <div class="steps">${segment.steps}</div>
+                    <div calss="heartRate">${segment.heartRate }</div>
+                </div>
+            `).join('');
+        }
+
+        // 保存记录
+        function saveRecord() {
+            alert('记录已保存！');
+        }
+
+        // 页面加载时渲染分段数据
+        renderSegments();
+    </script>
+</body>
+</html>
